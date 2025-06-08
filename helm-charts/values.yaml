@@ -1,0 +1,8 @@
+image:
+  repository: yourdockerhubusername/myapp
+  tag: latest
+
+service:
+  type: NodePort
+  port: 3000
+

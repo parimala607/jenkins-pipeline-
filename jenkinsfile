@@ -1,0 +1,39 @@
+pipeline {
+  agent {
+    docker {
+      image 'node:18'
+    }
+  }
+  environment {
+    SONAR_TOKEN = credentials('sonarqube')
+    DOCKER_CREDS = credentials('dockerhub')
+    IMAGE_NAME = 'parimala20/myapp'
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        git 'https://github.com/parimala607/jenkins-pipeline-.git'
+      }
+    }
+    stage('SonarQube Scan') {
+      steps {
+        withSonarQubeEnv('MySonarQube') {
+          sh 'sonar-scanner -Dsonar.projectKey=myapp -Dsonar.sources=./app -Dsonar.login=$SONAR_TOKEN'
+        }
+      }
+    }
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t $IMAGE_NAME .'
+      }
+    }
+    stage('Push Docker Image') {
+      steps {
+        sh '''
+          echo "$DOCKER_CREDS_PSW" | docker login -u "$DOCKER_CREDS_USR" --password-stdin
+          docker push $IMAGE_NAME
+        '''
+      }
+    }
+  }
+}
