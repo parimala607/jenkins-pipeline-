@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    SONAR_TOKEN = credentials('sonar-token-id')          // Jenkins credential ID for SonarQube token
+    SONAR_TOKEN = credentials('sonarqube')          // Jenkins credential ID for SonarQube token
     DOCKERHUB_CREDENTIALS = credentials('dockerhub')     // Jenkins credential ID for DockerHub
     IMAGE_NAME = 'parimala20/myapp'                      // DockerHub image name
     SONARQUBE = 'MySonarQube'                            // SonarQube server name configured in Jenkins
@@ -21,7 +21,7 @@ pipeline {
 
     stage('SonarQube Scan') {
       steps {
-        withSonarQubeEnv("${SONARQUBE}") {
+        withSonarQubeEnv('MySonarQube') {
           sh '''
             sonar-scanner \
               -Dsonar.projectKey=myapp \
