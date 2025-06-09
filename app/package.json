@@ -1,0 +1,11 @@
+{
+  "name": "cicd-pipeline-project",
+  "version": "1.0.0",
+  "description": "My first CI/CD pipeline project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Your Name",
+  "license": "ISC"
+}
