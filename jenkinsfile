@@ -5,7 +5,21 @@ pipeline {
     SONAR_TOKEN = credentials('sonarqube') 
     IMAGE_NAME  = 'parimala20/myapp'
   }
+pipeline {
+  agent any
 
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
+    SONAR_TOKEN = credentials('sonar-token-id')
+    SONARQUBE = 'MySonarQube'
+    DOCKER_IMAGE = 'yourdockerhubusername/your-image-name'
+  }
+
+  triggers {
+    githubPush()
+  }
+
+ 
   stages {
     stage('Checkout') {
       steps {
@@ -38,4 +52,8 @@ pipeline {
       }
     }
   }
-}
+}  
+
+
+   
+     
