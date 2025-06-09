@@ -2,24 +2,16 @@ pipeline {
   agent any
 
   environment {
-    SONAR_TOKEN = credentials('sonarqube') 
-    IMAGE_NAME  = 'parimala20/myapp'
-  }
-pipeline {
-  agent any
-
-  environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
-    SONAR_TOKEN = credentials('sonar-token-id')
-    SONARQUBE = 'MySonarQube'
-    DOCKER_IMAGE = 'yourdockerhubusername/your-image-name'
+    SONAR_TOKEN = credentials('sonar-token-id')          // Jenkins credential ID for SonarQube token
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub')     // Jenkins credential ID for DockerHub
+    IMAGE_NAME = 'parimala20/myapp'                      // DockerHub image name
+    SONARQUBE = 'MySonarQube'                            // SonarQube server name configured in Jenkins
   }
 
   triggers {
     githubPush()
   }
 
- 
   stages {
     stage('Checkout') {
       steps {
@@ -29,8 +21,13 @@ pipeline {
 
     stage('SonarQube Scan') {
       steps {
-        withSonarQubeEnv('MySonarQube') {
-          sh 'sonar-scanner -Dsonar.projectKey=myapp -Dsonar.sources=./app -Dsonar.login=$SONAR_TOKEN'
+        withSonarQubeEnv("${SONARQUBE}") {
+          sh '''
+            sonar-scanner \
+              -Dsonar.projectKey=myapp \
+              -Dsonar.sources=./app \
+              -Dsonar.login=${SONAR_TOKEN}
+          '''
         }
       }
     }
@@ -43,17 +40,7 @@ pipeline {
 
     stage('Push Docker Image') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_CREDS_USR', passwordVariable: 'DOCKER_CREDS_PSW')]) {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh '''
-            echo "$DOCKER_CREDS_PSW" | docker login -u "$DOCKER_CREDS_USR" --password-stdin
-            docker push $IMAGE_NAME
-          '''
-        }
-      }
-    }
-  }
-}  
-
-
-   
-     
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker push
